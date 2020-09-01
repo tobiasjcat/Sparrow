@@ -1,0 +1,10 @@
+@font-face {
+    font-family: 'RussoOne';
+    src: url('/static/RussoOne-Regular.ttf');
+}
+body {
+  font-size: 100%;
+  font:inherit;
+  font-family: 'RussoOne';
+  vertical-align: baseline;
+}
