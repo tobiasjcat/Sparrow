@@ -1,6 +1,8 @@
 # My additions
 sp_venv/
 *.zip
+*.csv
+calls.db
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
