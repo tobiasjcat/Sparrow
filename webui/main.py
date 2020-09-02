@@ -8,6 +8,16 @@ from pprint import pformat, pprint
 
 import db_utils
 
+DAYMAPPING = { \
+    0:"Mon", \
+    1:"Tue", \
+    2:"Wed", \
+    3:"Thu", \
+    4:"Fri", \
+    5:"Sat", \
+    6:"Sun", \
+}
+
 @get("/favicon.ico")
 def get_favicon():
     return static_file("favicon.ico", root="static")
@@ -44,7 +54,7 @@ def api_get_all_hours_table():
     return template("templates/tables/hours.html", hdata=retval, ttitle=ttitle)
 
 @get("/api/tables/danger_hours")
-def api_get_all_hours_table():
+def api_get_danger_hours_table():
     ttitle = "Calls for violent incidents for each hour of the day"
     hdata = db_utils.get_danger_hours_data()
     total_incidents = sum(hdata.values())
@@ -57,6 +67,38 @@ def api_get_all_hours_table():
         # retval[k]["bgcolor"] = hexrgb(retval[k]["value"], maxval, minval)
         retval[k]["bgcolor"] = hexrgb(retval[k]["value"], maxval, 0)
     return template("templates/tables/hours.html", hdata=retval, ttitle=ttitle)
+
+
+@get("/api/tables/all_weekdays")
+def api_get_all_weekdays_table():
+    ttitle = "All calls for each days of the week"
+    hdata = db_utils.get_all_weekdays_data()
+    total_incidents = sum(hdata.values())
+    retval = {}
+    for k in hdata:
+        retval[k] = {"value" : round((hdata[k]/total_incidents) * 100, 2)}
+    minval, maxval = min(retval.values(), key=lambda x:x["value"]), max(retval.values(), key=lambda x:x["value"])
+    minval, maxval = minval["value"], maxval["value"]
+    for k in hdata:
+        # retval[k]["bgcolor"] = hexrgb(retval[k]["value"], maxval, minval)
+        retval[k]["bgcolor"] = hexrgb(retval[k]["value"], maxval, minval - 0.5)
+    return template("templates/tables/days.html", hdata=retval, ttitle=ttitle, daymap=DAYMAPPING)
+
+@get("/api/tables/danger_weekdays")
+def api_get_danger_weekdays_table():
+    ttitle = "Calls for violent incidents for each day of the week"
+    hdata = db_utils.get_danger_weekdays_data()
+    total_incidents = sum(hdata.values())
+    retval = {}
+    for k in hdata:
+        retval[k] = {"value" : round((hdata[k]/total_incidents) * 100, 2)}
+    minval, maxval = min(retval.values(), key=lambda x:x["value"]), max(retval.values(), key=lambda x:x["value"])
+    minval, maxval = minval["value"], maxval["value"]
+    for k in hdata:
+        # retval[k]["bgcolor"] = hexrgb(retval[k]["value"], maxval, minval)
+        retval[k]["bgcolor"] = hexrgb(retval[k]["value"], maxval, minval - 0.5)
+    return template("templates/tables/days.html", hdata=retval, ttitle=ttitle, daymap=DAYMAPPING)
+
 
 def main():
     run(host="0.0.0.0", port=42133)

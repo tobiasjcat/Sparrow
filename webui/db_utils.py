@@ -14,6 +14,12 @@ def get_all_hours_data():
 def get_danger_hours_data():
     return dict(c.execute("SELECT * FROM danger_hour_of_the_day").fetchall())
 
+def get_all_weekdays_data():
+    return dict(c.execute("SELECT * FROM all_day_of_the_week").fetchall())
+
+def get_danger_weekdays_data():
+    return dict(c.execute("SELECT * FROM danger_day_of_the_week").fetchall())
+
 def main():
     return 0
 

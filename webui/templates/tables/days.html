@@ -1,0 +1,13 @@
+<h4 class="mb2">{{ ttitle }}</h4>
+<table class="mb3">
+  <tr>
+    % for i in range(7):
+    <th>{{ daymap[i] }}</th>
+    % end
+  </tr>
+  <tr>
+    % for i in range(7):
+    <td style="background-color:{{ hdata[i]['bgcolor'] }}">{{ hdata[i]["value"] }}</td>
+    % end
+  </tr>
+</table>
