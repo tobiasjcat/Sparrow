@@ -1,5 +1,5 @@
-<h4>{{ ttitle }}</h4>
-<table>
+<h4 class="mb2">{{ ttitle }}</h4>
+<table class="mb3">
   <tr>
     % for i in range(24):
     <th>{{ i }}:00</th>
@@ -7,7 +7,7 @@
   </tr>
   <tr>
     % for i in range(24):
-    <td>{{ hdata[i] }}</td>
+    <td style="background-color:{{ hdata[i]['bgcolor'] }}">{{ hdata[i]["value"] }}</td>
     % end
   </tr>
 </table>

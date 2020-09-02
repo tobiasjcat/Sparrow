@@ -21,17 +21,42 @@ def get_sfile(sfile):
 def mainpage():
     return template("templates/index.html")
 
+def hexrgb(invalue, inmax, inmin):
+    red_factor = int(((invalue - inmin) / (inmax - inmin)) * 255)
+    redhex = hex(red_factor + 0x100)[-2:]
+    greenhex = hex((255 - red_factor) + 0x100)[-2:]
+    return "#{}{}00".format(redhex, greenhex)
+
+
 @get("/api/tables/all_hours")
 def api_get_all_hours_table():
-    hdata = db_utils.get_all_hours_data()
     ttitle = "All calls for each hour of the day"
-    return template("templates/tables/hours.html", hdata=hdata, ttitle=ttitle)
+    hdata = db_utils.get_all_hours_data()
+    total_incidents = sum(hdata.values())
+    retval = {}
+    for k in hdata:
+        retval[k] = {"value" : round((hdata[k]/total_incidents) * 100, 2)}
+    minval, maxval = min(retval.values(), key=lambda x:x["value"]), max(retval.values(), key=lambda x:x["value"])
+    minval, maxval = minval["value"], maxval["value"]
+    for k in hdata:
+        # retval[k]["bgcolor"] = hexrgb(retval[k]["value"], maxval, minval)
+        retval[k]["bgcolor"] = hexrgb(retval[k]["value"], maxval, 0)
+    return template("templates/tables/hours.html", hdata=retval, ttitle=ttitle)
 
 @get("/api/tables/danger_hours")
 def api_get_all_hours_table():
-    hdata = db_utils.get_danger_hours_data()
     ttitle = "Calls for violent incidents for each hour of the day"
-    return template("templates/tables/hours.html", hdata=hdata, ttitle=ttitle)
+    hdata = db_utils.get_danger_hours_data()
+    total_incidents = sum(hdata.values())
+    retval = {}
+    for k in hdata:
+        retval[k] = {"value" : round((hdata[k]/total_incidents) * 100, 2)}
+    minval, maxval = min(retval.values(), key=lambda x:x["value"]), max(retval.values(), key=lambda x:x["value"])
+    minval, maxval = minval["value"], maxval["value"]
+    for k in hdata:
+        # retval[k]["bgcolor"] = hexrgb(retval[k]["value"], maxval, minval)
+        retval[k]["bgcolor"] = hexrgb(retval[k]["value"], maxval, 0)
+    return template("templates/tables/hours.html", hdata=retval, ttitle=ttitle)
 
 def main():
     run(host="0.0.0.0", port=42133)
