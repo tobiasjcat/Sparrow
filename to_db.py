@@ -39,7 +39,7 @@ CREATE TABLE calls (
     timefmt = "%m/%d/%Y %I:%M:%S %p"
 
 
-    print("Loading csv into file...", end='')
+    print("Loading csv into RAM...", end='')
     sys.stdout.flush()
     insert_lines = []
     with open("snnoc.csv") as csvfile:
@@ -50,7 +50,7 @@ CREATE TABLE calls (
                 row["Address"], \
                 row["Type"], \
                 row["Datetime"], \
-                time.mktime(time.strptime(row["Datetime"], timefmt)), \
+                int(time.mktime(time.strptime(row["Datetime"], timefmt))), \
                 row["Latitude"], \
                 row["Longitude"], \
                 row["Report Location"], \
@@ -75,7 +75,11 @@ CREATE TABLE calls (
     c.execute("CREATE INDEX location_idx ON calls(latitude, longitude)")
     # c.execute("CREATE INDEX type_idx ON calls(calltype)")
     print("Done")
+
+    print("Committing...", end='')
+    sys.stdout.flush()
     db_conn.commit()
+    print("Done")
 
     return 0
 

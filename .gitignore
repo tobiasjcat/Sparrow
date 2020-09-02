@@ -2,7 +2,7 @@
 sp_venv/
 *.zip
 *.csv
-calls.db
+*.db
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
