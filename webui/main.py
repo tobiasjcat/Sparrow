@@ -24,7 +24,14 @@ def mainpage():
 @get("/api/tables/all_hours")
 def api_get_all_hours_table():
     hdata = db_utils.get_all_hours_data()
-    return template("templates/tables/hours.html", hdata=hdata)
+    ttitle = "All calls for each hour of the day"
+    return template("templates/tables/hours.html", hdata=hdata, ttitle=ttitle)
+
+@get("/api/tables/danger_hours")
+def api_get_all_hours_table():
+    hdata = db_utils.get_danger_hours_data()
+    ttitle = "Calls for violent incidents for each hour of the day"
+    return template("templates/tables/hours.html", hdata=hdata, ttitle=ttitle)
 
 def main():
     run(host="0.0.0.0", port=42133)

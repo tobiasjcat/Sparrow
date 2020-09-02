@@ -11,8 +11,10 @@ c = conn.cursor()
 def get_all_hours_data():
     return dict(c.execute("SELECT * FROM all_hour_of_the_day").fetchall())
 
+def get_danger_hours_data():
+    return dict(c.execute("SELECT * FROM danger_hour_of_the_day").fetchall())
+
 def main():
-    schema = c.execute("")
     return 0
 
 
