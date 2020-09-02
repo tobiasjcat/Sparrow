@@ -29,7 +29,7 @@ def quick_print(instr):
 def main():
 
     quick_print("Dropping and vacuuming...")
-    tables = ["all_hour_of_day", "danger_hour_of_the_day"]
+    tables = ["all_hour_of_the_day", "danger_hour_of_the_day"]
     for t in tables:
         sc.execute("DROP TABLE IF EXISTS {}".format(t))
 
@@ -40,7 +40,7 @@ def main():
 
     #all_hour_of_day
     quick_print("Inserting hour of the day data (all calls)...")
-    sc.execute("CREATE TABLE all_hour_of_day (hour INT, num_calls INT)")
+    sc.execute("CREATE TABLE all_hour_of_the_day (hour INT, num_calls INT)")
     # hours = cc.execute("SELECT epoch_time FROM calls LIMIT 100")
     hours = cc.execute("SELECT epoch_time FROM calls")
     chunk = hours.fetchmany(CHUNKSIZE)
@@ -50,7 +50,8 @@ def main():
         results.update(insert_values)
         chunk = hours.fetchmany(CHUNKSIZE)
     to_insert = [(i, results[i], ) for i in range(24)]
-    sc.executemany("INSERT INTO all_hour_of_day VALUES (?, ?)", to_insert)
+    sc.executemany("INSERT INTO all_hour_of_the_day VALUES (?, ?)", to_insert)
+    stat_conn.commit()
     print("Done")
 
     #danger_hour_of_the_day
@@ -66,9 +67,9 @@ def main():
             chunk = hours.fetchmany(CHUNKSIZE)
     to_insert = [(i, results[i], ) for i in range(24)]
     sc.executemany("INSERT INTO danger_hour_of_the_day VALUES (?, ?)", to_insert)
+    stat_conn.commit()
     print("Done")
 
-    stat_conn.commit()
 
     return 0
 
