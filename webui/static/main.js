@@ -15,4 +15,6 @@ function load_all_elements() {
   load_general_table("/api/tables/danger_hours", "danger_hours_table");
   load_general_table("/api/tables/all_weekdays", "all_weekdays_table");
   load_general_table("/api/tables/danger_weekdays", "danger_weekdays_table");
+  load_general_table("/api/tables/all_hourweek", "all_hourweek_table");
+  load_general_table("/api/tables/danger_hourweek", "danger_hourweek_table");
 }

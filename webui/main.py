@@ -80,8 +80,7 @@ def api_get_all_weekdays_table():
     minval, maxval = min(retval.values(), key=lambda x:x["value"]), max(retval.values(), key=lambda x:x["value"])
     minval, maxval = minval["value"], maxval["value"]
     for k in hdata:
-        # retval[k]["bgcolor"] = hexrgb(retval[k]["value"], maxval, minval)
-        retval[k]["bgcolor"] = hexrgb(retval[k]["value"], maxval, minval - 0.5)
+        retval[k]["bgcolor"] = hexrgb(retval[k]["value"], maxval, 0)
     return template("templates/tables/days.html", hdata=retval, ttitle=ttitle, daymap=DAYMAPPING)
 
 @get("/api/tables/danger_weekdays")
@@ -96,8 +95,43 @@ def api_get_danger_weekdays_table():
     minval, maxval = minval["value"], maxval["value"]
     for k in hdata:
         # retval[k]["bgcolor"] = hexrgb(retval[k]["value"], maxval, minval)
-        retval[k]["bgcolor"] = hexrgb(retval[k]["value"], maxval, minval - 0.5)
+        retval[k]["bgcolor"] = hexrgb(retval[k]["value"], maxval, 0)
     return template("templates/tables/days.html", hdata=retval, ttitle=ttitle, daymap=DAYMAPPING)
+
+@get("/api/tables/all_hourweek")
+def api_get_all_hourweek_table():
+    ttitle = "All calls for each hour of the week as a percentage of maximum calls"
+    hdata = db_utils.get_all_hourweek_data()
+    retval = {d:{h:{} for h in range(24)} for d in range(7)}
+    value_list = []
+    for d in range(7):
+        for h in range(24):
+            value_list.append(hdata[d][h])
+    total_incidents = sum(value_list)
+    minval, maxval = min(value_list), max(value_list)
+    for d in range(7):
+        for h in range(24):
+            retval[d][h]["value"] = round((hdata[d][h] / maxval) * 100, 2)
+            retval[d][h]["bgcolor"] = hexrgb(retval[d][h]["value"], 100, 0)
+
+    return template("templates/tables/hour_ot_week.html", hdata=retval, ttitle=ttitle, daymap=DAYMAPPING)
+
+@get("/api/tables/danger_hourweek")
+def api_get_danger_hourweek_table():
+    ttitle = "Calls for violent incidents for each hour of the week as a percentage of maximum calls"
+    hdata = db_utils.get_danger_hourweek_data()
+    retval = {d:{h:{} for h in range(24)} for d in range(7)}
+    value_list = []
+    for d in range(7):
+        for h in range(24):
+            value_list.append(hdata[d][h])
+    total_incidents = sum(value_list)
+    minval, maxval = min(value_list), max(value_list)
+    for d in range(7):
+        for h in range(24):
+            retval[d][h]["value"] = round((hdata[d][h] / maxval) * 100, 2)
+            retval[d][h]["bgcolor"] = hexrgb(retval[d][h]["value"], 100, 0)
+    return template("templates/tables/hour_ot_week.html", hdata=retval, ttitle=ttitle, daymap=DAYMAPPING)
 
 
 def main():

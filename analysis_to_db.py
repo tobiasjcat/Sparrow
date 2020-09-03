@@ -4,6 +4,7 @@
 #September 1, 2020
 
 from collections import Counter
+import itertools
 from pprint import pformat, pprint
 import sqlite3
 import sys
@@ -34,6 +35,8 @@ def main():
         "danger_hour_of_the_day", \
         "all_day_of_the_week", \
         "danger_day_of_the_week", \
+        "all_hour_of_the_week", \
+        "danger_hour_of_the_week", \
         ]
     for t in tables:
         sc.execute("DROP TABLE IF EXISTS {}".format(t))
@@ -76,7 +79,7 @@ def main():
 
     #all_day_of_the_week
     quick_print("Inserting day of the week data (all calls)...")
-    sc.execute("CREATE TABLE all_day_of_the_week (hour INT, num_calls INT)")
+    sc.execute("CREATE TABLE all_day_of_the_week (day INT, num_calls INT)")
     hours = cc.execute("SELECT epoch_time FROM calls")
     chunk = hours.fetchmany(CHUNKSIZE)
     results = Counter([])
@@ -103,6 +106,51 @@ def main():
             chunk = hours.fetchmany(CHUNKSIZE)
     to_insert = [(i, results[i], ) for i in range(7)]
     sc.executemany("INSERT INTO danger_day_of_the_week VALUES (?, ?)", to_insert)
+    stat_conn.commit()
+    print("Done")
+
+
+    #all_hour_of_the_week
+    quick_print("Inserting hour of the week data (all calls)...")
+    sc.execute("CREATE TABLE all_hour_of_the_week (day INT, hour INT, num_calls INT)")
+    hours = cc.execute("SELECT epoch_time FROM calls")
+    chunk = hours.fetchmany(CHUNKSIZE)
+    results = Counter([])
+    while chunk:
+        insert_values = ["{},{}".format(time.localtime(i[0])[6], time.localtime(i[0])[3]) for i in chunk]
+        results.update(insert_values)
+        chunk = hours.fetchmany(CHUNKSIZE)
+    # to_insert = [(i, results[i], ) for i in range(7)]
+    to_insert = []
+    for d in range(7):
+        for h in range(24):
+            index_str = "{},{}".format(d,h)
+            to_insert.append((d, h, results[index_str], ))
+    sc.executemany("INSERT INTO all_hour_of_the_week VALUES (?, ?, ?)", to_insert)
+    stat_conn.commit()
+    print("Done")
+
+
+    #danger_hour_of_the_week
+    quick_print("Inserting hour of the week data (violent calls)...")
+    sc.execute("CREATE TABLE danger_hour_of_the_week (day INT, hour INT, num_calls INT)")
+    hours = cc.execute("SELECT epoch_time FROM calls")
+    chunk = hours.fetchmany(CHUNKSIZE)
+    results = Counter([])
+    for d in DANGER:
+        hours = cc.execute("SELECT epoch_time FROM calls WHERE calltype LIKE '{}'".format(d))
+        chunk = hours.fetchmany(CHUNKSIZE)
+        while chunk:
+            insert_values = ["{},{}".format(time.localtime(i[0])[6], time.localtime(i[0])[3]) for i in chunk]
+            results.update(insert_values)
+            chunk = hours.fetchmany(CHUNKSIZE)
+    # to_insert = [(i, results[i], ) for i in range(7)]
+    to_insert = []
+    for d in range(7):
+        for h in range(24):
+            index_str = "{},{}".format(d,h)
+            to_insert.append((d, h, results[index_str], ))
+    sc.executemany("INSERT INTO danger_hour_of_the_week VALUES (?, ?, ?)", to_insert)
     stat_conn.commit()
     print("Done")
 
