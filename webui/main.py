@@ -33,6 +33,8 @@ def mainpage():
 
 def hexrgb(invalue, inmax, inmin):
     red_factor = int(((invalue - inmin) / (inmax - inmin)) * 255)
+    # if not red_factor:
+    #     return
     redhex = hex(red_factor + 0x100)[-2:]
     greenhex = hex((255 - red_factor) + 0x100)[-2:]
     return "#{}{}00".format(redhex, greenhex)
@@ -84,7 +86,7 @@ def api_get_all_weekdays_table():
     return template("templates/tables/days.html", hdata=retval, ttitle=ttitle, daymap=DAYMAPPING)
 
 @get("/api/tables/danger_weekdays")
-def api_get_danger_weekdays_table():
+def api_get_danger_weekdays_table100():
     ttitle = "Calls for violent incidents for each day of the week"
     hdata = db_utils.get_danger_weekdays_data()
     total_incidents = sum(hdata.values())
@@ -133,6 +135,42 @@ def api_get_danger_hourweek_table():
             retval[d][h]["bgcolor"] = hexrgb(retval[d][h]["value"], 100, 0)
     return template("templates/tables/hour_ot_week.html", hdata=retval, ttitle=ttitle, daymap=DAYMAPPING)
 
+
+@get("/api/tables/all_quadrants")
+def api_get_all_quadrants_table():
+    ttitle = "Quadrants where calls originate"
+    hdata = db_utils.get_all_quadrants()
+    retval = {x:{y:{} for y in range(53, 112)} for x in range(25, 78)}
+    value_list = []
+    for x in range(25,78):
+        for y in range(53,112):
+            value_list.append(hdata[x][y])
+    total_incidents = sum(value_list)
+    minval, maxval = min(value_list), max(value_list)
+    for x in range(25, 78):
+        for y in range(53, 112):
+            retval[x][y]["value"] = round((hdata[x][y] / maxval) * 100, 2)
+            # retval[x][y]["value"] = hdata[x][y]
+            retval[x][y]["bgcolor"] = hexrgb(retval[x][y]["value"], 100, 0)
+    return template("templates/tables/coordinates.html", hdata=retval, ttitle=ttitle)
+
+@get("/api/tables/non_larceny_quadrants")
+def api_get_nl_quadrants_table():
+    ttitle = "Quadrants where calls reporting non-larceny offenses originate"
+    hdata = db_utils.get_nl_quadrants()
+    retval = {x:{y:{} for y in range(53, 112)} for x in range(25, 78)}
+    value_list = []
+    for x in range(25,78):
+        for y in range(53,112):
+            value_list.append(hdata[x][y])
+    total_incidents = sum(value_list)
+    minval, maxval = min(value_list), max(value_list)
+    for x in range(25, 78):
+        for y in range(53, 112):
+            retval[x][y]["value"] = round((hdata[x][y] / maxval) * 100, 2)
+            # retval[x][y]["value"] = hdata[x][y]
+            retval[x][y]["bgcolor"] = hexrgb(retval[x][y]["value"], 100, 0)
+    return template("templates/tables/coordinates.html", hdata=retval, ttitle=ttitle)
 
 def main():
     run(host="0.0.0.0", port=42133)

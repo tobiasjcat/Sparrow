@@ -34,6 +34,20 @@ def get_danger_hourweek_data():
         retval[d][h] = r
     return retval
 
+def get_all_quadrants():
+    db_results_list = c.execute("SELECT * FROM quadrants").fetchall()
+    retval = {x:{} for x in range(25,78)}
+    for x,y,r in db_results_list:
+        retval[x][y] = r
+    return retval
+
+def get_nl_quadrants():
+    db_results_list = c.execute("SELECT * FROM non_larceny_quadrants").fetchall()
+    retval = {x:{} for x in range(25,78)}
+    for x,y,r in db_results_list:
+        retval[x][y] = r
+    return retval
+
 def main():
     return 0
 

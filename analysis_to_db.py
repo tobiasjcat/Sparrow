@@ -27,6 +27,7 @@ def quick_print(instr):
     sys.stdout.write(instr)
     sys.stdout.flush()
 
+
 def main():
 
     quick_print("Dropping and vacuuming...")
@@ -37,6 +38,8 @@ def main():
         "danger_day_of_the_week", \
         "all_hour_of_the_week", \
         "danger_hour_of_the_week", \
+        "quadrants", \
+        "non_larceny_quadrants", \
         ]
     for t in tables:
         sc.execute("DROP TABLE IF EXISTS {}".format(t))
@@ -151,6 +154,54 @@ def main():
             index_str = "{},{}".format(d,h)
             to_insert.append((d, h, results[index_str], ))
     sc.executemany("INSERT INTO danger_hour_of_the_week VALUES (?, ?, ?)", to_insert)
+    stat_conn.commit()
+    print("Done")
+
+    #all_call_coordinates
+    quick_print("Inserting coordinates (all calls)...")
+    sc.execute("CREATE TABLE quadrants (latitude_hundredths INT, longitude_hundredths INT, num_calls INT)")
+    hours = cc.execute("SELECT latitude, longitude FROM calls")
+    chunk = hours.fetchmany(CHUNKSIZE)
+    results = Counter([])
+    while chunk:
+        # pprint(chunk)
+        # insert_values = ["{},{}".format(time.localtime(i[0])[6], time.localtime(i[0])[3]) for i in chunk]
+        insert_values = ["{},{}".format(int(float(x) * 100) - 4700, int(float(y) * 100) + 12300) for x,y in chunk]
+        results.update(insert_values)
+        chunk = hours.fetchmany(CHUNKSIZE)
+    # pprint(results)
+    to_insert = []
+    #bounds of seattle
+    for x in range(25, 78):
+        for y in range(53, 112):
+            to_insert.append((x,y,results["{},{}".format(x,y)]))
+
+    sc.executemany("INSERT INTO quadrants VALUES (?, ?, ?)", to_insert)
+    stat_conn.commit()
+    print("Done")
+
+
+    #non_larceny_call_coordinates
+    quick_print("Inserting non_larceny_coordinates (all calls)...")
+    sc.execute("CREATE TABLE non_larceny_quadrants (latitude_hundredths INT, longitude_hundredths INT, num_calls INT)")
+    # hours = cc.execute("SELECT latitude, longitude FROM calls")
+    chunk = hours.fetchmany(CHUNKSIZE)
+    results = Counter([])
+    for d in DANGER:
+        hours = cc.execute("SELECT latitude, longitude FROM calls WHERE calltype LIKE '{}'".format(d))
+        chunk = hours.fetchmany(CHUNKSIZE)
+        while chunk:
+            insert_values = ["{},{}".format(int(float(x) * 100) - 4700, int(float(y) * 100) + 12300) for x,y in chunk]
+            results.update(insert_values)
+            chunk = hours.fetchmany(CHUNKSIZE)
+    # pprint(results)
+    to_insert = []
+    #bounds of seattle
+    for x in range(25, 78):
+        for y in range(53, 112):
+            to_insert.append((x,y,results["{},{}".format(x,y)]))
+
+    sc.executemany("INSERT INTO non_larceny_quadrants VALUES (?, ?, ?)", to_insert)
     stat_conn.commit()
     print("Done")
 

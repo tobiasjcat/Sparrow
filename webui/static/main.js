@@ -17,4 +17,6 @@ function load_all_elements() {
   load_general_table("/api/tables/danger_weekdays", "danger_weekdays_table");
   load_general_table("/api/tables/all_hourweek", "all_hourweek_table");
   load_general_table("/api/tables/danger_hourweek", "danger_hourweek_table");
+  load_general_table("/api/tables/all_quadrants", "all_quad_table");
+  load_general_table("/api/tables/non_larceny_quadrants", "nl_quad_table");
 }

@@ -1,0 +1,21 @@
+<!-- for x in range(25, 78):
+    for y in range(53, 112): -->
+<h4 class="mb2">{{ ttitle }}</h4>
+<table class="mv3">
+  <tr>
+    <td></td>
+    % for x in range(57, 80, 2):
+    <td colspan="2" style="transform:rotate(-20deg) translate(0px,-10px);">-122.{{ 100 - x }}°</td>
+    % end
+  </tr>
+  % for y in range(74, 49, -1):
+  <tr>
+    <td>47.{{ y }}°</td>
+    % for x in range(57, 80):
+    <td style="background-color:{{ hdata[y][x]['bgcolor'] }};color:#000;">
+      {{ hdata[y][x]["value"] }}
+    </td>
+    % end
+  </tr>
+  % end
+</table>
